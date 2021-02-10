@@ -18,6 +18,7 @@
 #include <ti/drivers/GPIO.h>
 #include "ti_drivers_config.h"
 #include <ti/drivers/dpl/HwiP.h>
+#include "ti_drivers_config.h"
 
 void timer500Callback(Timer_Handle myHandle, int_fast16_t status);
 
@@ -59,7 +60,7 @@ void timer500Callback(Timer_Handle myHandle, int_fast16_t status){
     bool inISR = HwiP_inISR(); // in order to determine in ISR or not
 
     TickType_t tick_count;
-    if (inISR == True){
+    if (inISR == true){
         tick_count = xTaskGetTickCountFromISR();
     }
     else{

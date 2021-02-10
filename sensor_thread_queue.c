@@ -17,6 +17,7 @@ void createSensorThreadQueue() {
 
     if (sensor_thread_queue == NULL) {
         //error handling
+        while(1) {}
     }
 }
 
@@ -28,6 +29,7 @@ void receiveFromSensorThreadQueue(SensorThreadMessage* receivedMsg) {
     }
     else {
         //Error, proceed to stop
+        while(1) {}
     }
 
 }
@@ -40,6 +42,7 @@ BaseType_t sendToSensorThreadQueueFromISR(void *targetMessage) {
     }
     else{
         //error, proceed to stop
+        while(1) {}
     }
 
     return xHigherPriorityTaskWoken;

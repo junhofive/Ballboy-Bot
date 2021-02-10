@@ -10,15 +10,12 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include <pthread.h>
-
-
 
 void *sensor_task(void *arg0) {
     while(1) {
         SensorThreadMessage sensorMessage;
         receiveFromSensorThreadQueue(&sensorMessage);
-
+    }
 
 
 }

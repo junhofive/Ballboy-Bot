@@ -14,13 +14,13 @@
 #define MESSAGE_LENGTH 20
 
 typedef struct SensorThreadMessage {
-    char  message_type[MESSAGE_LENGTH]
+    char  message_type[MESSAGE_LENGTH];
     int   value;
 } SensorThreadMessage;
 
 void createSensorThreadQueue();
 
-void receiveFromSensorThreadQueue(void* receivedMsg);
+void receiveFromSensorThreadQueue(SensorThreadMessage* receivedMsg);
 
 BaseType_t sendToSensorThreadQueueFromISR(void *targetMessage);
 

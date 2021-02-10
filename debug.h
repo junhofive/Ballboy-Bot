@@ -52,6 +52,7 @@
 #define ENTERING_TIMER_FIVE         0x21
 #define LEAVING_TIMER_FIVE          0x22
 
+#define UART_NOT_OPEN               0x30
 #define FREERTOS_STACK_OVERFLOW     0x40
 
 void dbgEvent(unsigned int event);

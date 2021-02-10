@@ -6,7 +6,7 @@
 /*
         Referred to example code timerled.c, adcsinglechannel.c
         Referred to struct in c document: tutorialspoint.com/cprogramming/c_structures.htm
-        Referred to documents: Mastering the FreeRTOS™ Real Time Kernel & The FreeRTOS™ Reference Manual. URL: https://www.freertos.org/Documentation/RTOS_book.html
+        Referred to documents: Mastering the FreeRTOS Real Time Kernel & The FreeRTOS Reference Manual. URL: https://www.freertos.org/Documentation/RTOS_book.html
         Referred to document: Pointer to a Structure in C. URL: https://overiq.com/c-programming-101/pointer-to-a-structure-in-c/
 */
 
@@ -15,6 +15,7 @@
 */
 
 #include "timer70.h"
+#include "sensor_thread_queue.h"
 #include <FreeRTOS.h>
 #include <stdint.h>
 #include <stddef.h>
@@ -28,75 +29,7 @@
 #include "ti_drivers_config.h"
 
 
-void timer70Callback(Timer_Handle myHandle, int_fast16_t status, QueueHandle_t SensorThreadMessage);
-int convert_to_mm(ADC_Handle adc);
-
-void *timer70Thread(void *arg0){
-    // set the message type
-    struct message msg;
-    struct messgae *ptr_msg;
-    ptr_msg = &msg; // set up a pointer to msg struct
-
-    strcpy(msg.message_type, "TIMER70_MESSAGE");
-
-    Timer_Handle timer70;
-    Timer_Params params;
-
-    Timer_init();
-
-    Timer_Params_init(&params);
-    params.period = 70000; // 70000 microsecond = 70 ms
-    params.periodUnits = Timer_PERIOD_US;
-    params.timerMode = Timer_CONTINUOUS_CALLBACK;
-    params.timerCallback = timer70Callback;
-
-    timer70 = Timer_open(TIMER_70, &params);
-
-    if (timer70 == NULL) {
-       /* Failed to initialized timer */
-       while (1) {}
-    }
-
-    if (Timer_start(timer70) == Timer_STATUS_ERROR) {
-       /* Failed to start timer */
-       while (1) {}
-    }
-}
-
-/*
- * This is the callback function for timer 70.
- * Period = 70 ms
- */
-void timer70Callback(Timer_Handle myHandle, int_fast16_t status, QueueHandle_t SensorThreadMessage, struct message *ptr_msg)
-{
-    // try to read the output from IR sensor
-    // Read the ADC output
-    // Using ping 58, CONFIG_ADC_0
-    // blocking call: portMAX_DELAY
-
-    int distance;
-
-    ADC_Handle adc;
-    ADC_Params params;
-
-    ADC_Params_init(&params);
-    adc = ADC_open(CONFIG_ADC_0, &params);
-
-    // error initializing CONFIG_ADC_0
-    if (adc == NULL) {
-        while (1);
-    }
-
-    distance = convert_to_mm(adc);
-    ptr_msg->distance = distance;
-
-    ADC_close(adc);
-
-    // send to message queue
-    xQueueSendFromISR(SensorThreadMessage, ptr_msg);
-}
-
-
+void timer70Callback(Timer_Handle myHandle, int_fast16_t status);
 /*
  * This function is used to convert the sensor reading to mm
  */
@@ -128,5 +61,69 @@ int convert_to_mm(ADC_Handle adc){
         distance = -1;
     }
 
-    return (distance);
+    return distance;
+}
+
+void *timer70Thread(void *arg0){
+    Timer_Handle timer70;
+    Timer_Params params;
+
+    Timer_init();
+
+    Timer_Params_init(&params);
+    params.period = 70000; // 70000 microsecond = 70 ms
+    params.periodUnits = Timer_PERIOD_US;
+    params.timerMode = Timer_CONTINUOUS_CALLBACK;
+    params.timerCallback = timer70Callback;
+
+    timer70 = Timer_open(CONFIG_TIMER_0, &params);
+
+    if (timer70 == NULL) {
+       /* Failed to initialized timer */
+       while (1) {}
+    }
+
+    if (Timer_start(timer70) == Timer_STATUS_ERROR) {
+       /* Failed to start timer */
+       while (1) {}
+    }
+
+    return (NULL);
+}
+
+/*
+ * This is the callback function for timer 70.
+ * Period = 70 ms
+ */
+void timer70Callback(Timer_Handle myHandle, int_fast16_t status)
+{
+    // try to read the output from IR sensor
+    // Read the ADC output
+    // Using pin 59, CONFIG_ADC_0
+    // blocking call: portMAX_DELAY
+
+    ADC_Handle  adc;
+    ADC_Params  params;
+    int         distance;
+    SensorThreadMessage message;
+    BaseType_t xHigherPriorityTaskWoken;
+    ADC_Params_init(&params);
+
+    adc = ADC_open(CONFIG_ADC_0, &params);
+
+    // error initializing CONFIG_ADC_0
+    if (adc == NULL) {
+        while (1);
+    }
+
+    distance = convert_to_mm(adc);
+    message.value = distance;
+    strcpy(message.message_type, "TIMER70_MESSAGE");
+
+    ADC_close(adc);
+
+    // send to message queue
+    xHigherPriorityTaskWoken = sendToSensorThreadQueueFromISR(&message);
+
+    portEND_SWITCHING_ISR(xHigherPriorityTaskWoken);
 }

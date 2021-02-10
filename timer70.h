@@ -10,7 +10,6 @@
 /*
  * Struct for message
  */
-#include "sensor_thread_queue.h"
 
 void *timer70Thread(void *arg0);
 //*************************************************************************************************

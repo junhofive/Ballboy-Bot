@@ -4,6 +4,7 @@
  */
 
 #include "timer500.h"
+#include "sensor_thread_queue.h"
 #include <FreeRTOS.h>
 #include <stdint.h>
 #include <stddef.h>
@@ -16,17 +17,11 @@
 #include <ti/drivers/Timer.h>
 #include <ti/drivers/GPIO.h>
 #include "ti_drivers_config.h"
+#include <ti/drivers/dpl/HwiP.h>
 
 void timer500Callback(Timer_Handle myHandle, int_fast16_t status);
 
 void *timer500Thread(void *arg0){
-    // set the message type
-    struct message msg;
-    struct messgae *ptr_msg;
-    ptr_msg = &msg; // set up a pointer to msg struct
-
-    strcpy(msg.message_type, "TIMER500_MESSAGE");
-
     Timer_Handle timer500;
     Timer_Params params;
 
@@ -38,7 +33,7 @@ void *timer500Thread(void *arg0){
     params.timerMode = Timer_CONTINUOUS_CALLBACK;
     params.timerCallback = timer500Callback;
 
-    timer500 = Timer_open(TIMER_500, &params);
+    timer500 = Timer_open(CONFIG_TIMER_1, &params);
 
     if (timer500 == NULL) {
        /* Failed to initialized timer */
@@ -49,13 +44,18 @@ void *timer500Thread(void *arg0){
        /* Failed to start timer */
        while (1) {}
     }
+
+    return (NULL);
 }
 
 /*
  * This is the callback function for timer 500.
  * Period = 500 ms
  */
-void timer500Callback(Timer_Handle myHandle, int_fast16_t status, struct message *ptr_msg){
+void timer500Callback(Timer_Handle myHandle, int_fast16_t status){
+    SensorThreadMessage message;
+    BaseType_t xHigherPriorityTaskWoken;
+
     bool inISR = HwiP_inISR(); // in order to determine in ISR or not
 
     TickType_t tick_count;
@@ -71,8 +71,11 @@ void timer500Callback(Timer_Handle myHandle, int_fast16_t status, struct message
     // Rate = 1000 Hz for now -> 1ms period -> 1000 microsecond
     int elapsed_time = 1000 * tick_count;
 
-    ptr_msg->elapsed_time = elapsed_time;
+    message.value = elapsed_time;
+    strcpy(message.message_type, "TIMER500_MESSAGE");
 
     // send to message queue
-    xQueueSendFromISR(SensorThreadMessage, ptr_msg);
+    xHigherPriorityTaskWoken = sendToSensorThreadQueueFromISR(&message);
+
+    portEND_SWITCHING_ISR(xHigherPriorityTaskWoken);
 }

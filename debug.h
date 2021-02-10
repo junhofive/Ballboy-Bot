@@ -52,6 +52,8 @@
 #define ENTERING_TIMER_FIVE         0x21
 #define LEAVING_TIMER_FIVE          0x22
 
+#define FREERTOS_STACK_OVERFLOW     0x40
+
 void dbgEvent(unsigned int event);
 void handleFatalError(unsigned int eventLabel);
 #endif /* DEBUG_H_ */

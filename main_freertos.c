@@ -110,7 +110,5 @@ int main(void)
 void vApplicationStackOverflowHook(TaskHandle_t pxTask, char *pcTaskName)
 {
     //Handle FreeRTOS Stack Overflow
-    while(1)
-    {
-    }
+    handleFatalError(FREERTOS_STACK_OVERFLOW);
 }

@@ -9,7 +9,7 @@
 #include "timer70.h"
 #include "debug.h"
 
-#define QUEUE_LENGTH 20
+#define QUEUE_LENGTH 50
 /* Static Variable */
 static QueueHandle_t sensor_thread_queue = NULL;
 

@@ -62,6 +62,7 @@
  */
 void *mainThread(void *arg0)
 {
+    dbgEvent(ENTERING_TASK);
     pthread_t           timer70_thread, timer500_thread, sensor_thread, uart_thread;
     pthread_attr_t      attrs;
     struct sched_param  priParam;
@@ -111,9 +112,14 @@ void *mainThread(void *arg0)
         handleFatalError(PTHREAD_NOT_CREATED);
     }
     retc = pthread_create(&sensor_thread, &attrs, sensor_task, NULL);
-        if (retc != 0) {
-            /* pthread_create() failed */
-            handleFatalError(PTHREAD_NOT_CREATED);
-        }
+    if (retc != 0) {
+        /* pthread_create() failed */
+        handleFatalError(PTHREAD_NOT_CREATED);
+    }
+    retc = pthread_create(&uart_thread, &attrs, uart_task, NULL);
+    if (retc != 0) {
+        /* pthread_create() failed */
+        handleFatalError(PTHREAD_NOT_CREATED);
+    }
     return (NULL);
 }

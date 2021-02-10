@@ -12,7 +12,7 @@
 #include "debug.h"
 
 #define BUFFER_SIZE 50
-#define QUEUE_LENGTH 20
+#define QUEUE_LENGTH 50
 
 static QueueHandle_t uart_thread_queue = NULL;
 void createUARTthreadQueue()

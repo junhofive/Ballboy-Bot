@@ -22,6 +22,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <queue.h>
+#include "debug.h"
 
 #include <ti/drivers/ADC.h>
 #include <ti/drivers/Timer.h>
@@ -48,6 +49,7 @@ int convert_to_mm(ADC_Handle adc){
         adcValue0MicroVolt = ADC_convertRawToMicroVolts(adc, adcValue0);
     }
     else {  // convert failed
+        handleFatalError(ADC_CONVERSION_ERROR);
     }
 
     // Knowing the voltage, convert the voltage to distance
@@ -69,8 +71,6 @@ void *timer70Thread(void *arg0){
     Timer_Handle timer70;
     Timer_Params params;
 
-    Timer_init();
-
     Timer_Params_init(&params);
     params.period = 70000; // 70000 microsecond = 70 ms
     params.periodUnits = Timer_PERIOD_US;
@@ -81,12 +81,12 @@ void *timer70Thread(void *arg0){
 
     if (timer70 == NULL) {
        /* Failed to initialized timer */
-       while (1) {}
+       handleFatalError(TIMER_NOT_INITIALIZED);
     }
 
     if (Timer_start(timer70) == Timer_STATUS_ERROR) {
        /* Failed to start timer */
-       while (1) {}
+        handleFatalError(TIMER_NOT_OPEN);
     }
 
     return (NULL);
@@ -102,7 +102,7 @@ void timer70Callback(Timer_Handle myHandle, int_fast16_t status)
     // Read the ADC output
     // Using pin 59, CONFIG_ADC_0
     // blocking call: portMAX_DELAY
-
+    dbgEvent(ENTERING_TIMER);
     ADC_Handle  adc;
     ADC_Params  params;
     int         distance;
@@ -115,7 +115,7 @@ void timer70Callback(Timer_Handle myHandle, int_fast16_t status)
 
     // error initializing CONFIG_ADC_0
     if (adc == NULL) {
-        while (1);
+        handleFatalError(ADC_NOT_OPEN);
     }
 
     distance = convert_to_mm(adc);
@@ -128,4 +128,5 @@ void timer70Callback(Timer_Handle myHandle, int_fast16_t status)
     xHigherPriorityTaskWoken = sendToSensorThreadQueueFromISR(&message);
 
     portEND_SWITCHING_ISR(xHigherPriorityTaskWoken);
+    dbgEvent(LEAVING_TIMER);
 }

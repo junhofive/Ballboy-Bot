@@ -33,55 +33,87 @@
 /*
  *  ======== uartecho.c ========
  */
+#include <pthread.h>
 #include <stdint.h>
 #include <stddef.h>
+#include <FreeRTOS.h>
+#include <task.h>
+#include "debug.h"
+#include "sensor_task.h"
+#include "uart_task.h"
+#include "sensor_thread_queue.h"
+#include "uart_thread_queue.h"
+#include "timer70.h"
+#include "timer500.h"
 
 /* Driver Header files */
 #include <ti/drivers/GPIO.h>
 #include <ti/drivers/UART.h>
+#include <ti/drivers/ADC.h>
+#include <ti/drivers/Timer.h>
 
 /* Driver configuration */
 #include "ti_drivers_config.h"
+
+#define THREADSTACKSIZE   (768)
 
 /*
  *  ======== mainThread ========
  */
 void *mainThread(void *arg0)
 {
-    char        input;
-    const char  echoPrompt[] = "Echoing characters:\r\n";
-    UART_Handle uart;
-    UART_Params uartParams;
+    pthread_t           timer70_thread, timer500_thread, sensor_thread, uart_thread;
+    pthread_attr_t      attrs;
+    struct sched_param  priParam;
+    int                 retc;
+    int                 detachState;
 
     /* Call driver init functions */
     GPIO_init();
     UART_init();
+    ADC_init();
+    Timer_init();
 
-    /* Configure the LED pin */
-    GPIO_setConfig(CONFIG_GPIO_LED_0, GPIO_CFG_OUT_STD | GPIO_CFG_OUT_LOW);
+    createSensorThreadQueue();
+    createUARTthreadQueue();
+    GPIO_write(CONFIG_GPIO_7, 0);
+    GPIO_write(CONFIG_GPIO_6, 0);
+    GPIO_write(CONFIG_GPIO_5, 0);
+    GPIO_write(CONFIG_GPIO_4, 0);
+    GPIO_write(CONFIG_GPIO_3, 0);
+    GPIO_write(CONFIG_GPIO_2, 0);
+    GPIO_write(CONFIG_GPIO_1, 0);
+    GPIO_write(CONFIG_GPIO_0, 0);
+    pthread_attr_init(&attrs);
+    detachState = PTHREAD_CREATE_DETACHED;
 
-    /* Turn on user LED */
-    GPIO_write(CONFIG_GPIO_LED_0, CONFIG_GPIO_LED_ON);
-
-    /* Create a UART with data processing off. */
-    UART_Params_init(&uartParams);
-    uartParams.writeDataMode = UART_DATA_BINARY;
-    uartParams.readDataMode = UART_DATA_BINARY;
-    uartParams.readReturnMode = UART_RETURN_FULL;
-    uartParams.baudRate = 115200;
-
-    uart = UART_open(CONFIG_UART_0, &uartParams);
-
-    if (uart == NULL) {
-        /* UART_open() failed */
-        while (1);
+    retc = pthread_attr_setdetachstate(&attrs, detachState);
+    if (retc != 0) {
+        /* pthread_attr_setdetachstate() failed */
+        handleFatalError(PTHREAD_DETACHSTATE_ERROR);
+    }
+    retc |= pthread_attr_setstacksize(&attrs, THREADSTACKSIZE);
+    if (retc != 0) {
+        /* pthread_attr_setstacksize() failed */
+        handleFatalError(PTHREAD_STACKSIZE_ERROR);
     }
 
-    UART_write(uart, echoPrompt, sizeof(echoPrompt));
-
-    /* Loop forever echoing */
-    while (1) {
-        UART_read(uart, &input, 1);
-        UART_write(uart, &input, 1);
+    priParam.sched_priority = 1;
+    pthread_attr_setschedparam(&attrs, &priParam);
+    retc = pthread_create(&timer70_thread, &attrs, timer70Thread, NULL);
+    if (retc != 0) {
+        /* pthread_create() failed */
+        handleFatalError(PTHREAD_NOT_CREATED);
     }
+    retc = pthread_create(&timer500_thread, &attrs, timer500Thread, NULL);
+    if (retc != 0) {
+        /* pthread_create() failed */
+        handleFatalError(PTHREAD_NOT_CREATED);
+    }
+    retc = pthread_create(&sensor_thread, &attrs, sensor_task, NULL);
+        if (retc != 0) {
+            /* pthread_create() failed */
+            handleFatalError(PTHREAD_NOT_CREATED);
+        }
+    return (NULL);
 }

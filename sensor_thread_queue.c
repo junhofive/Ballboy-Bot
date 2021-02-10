@@ -7,8 +7,9 @@
 
 #include "sensor_thread_queue.h"
 #include "timer70.h"
+#include "debug.h"
 
-#define QUEUE_LENGTH 10
+#define QUEUE_LENGTH 20
 /* Static Variable */
 static QueueHandle_t sensor_thread_queue = NULL;
 
@@ -17,24 +18,25 @@ void createSensorThreadQueue() {
 
     if (sensor_thread_queue == NULL) {
         //error handling
-        while(1) {}
+        handleFatalError(SENSOR_QUEUE_NOT_CREATED);
     }
 }
 
 void receiveFromSensorThreadQueue(SensorThreadMessage* receivedMsg) {
     //SensorThreadMessage* someMessage = (SensorThreadMessage* ) receivedMsg;
-
+    dbgEvent(BEFORE_RECV_SENSOR_QUEUE);
     if (xQueueReceive(sensor_thread_queue, receivedMsg, portMAX_DELAY)) {
 
     }
     else {
         //Error, proceed to stop
-        while(1) {}
+        handleFatalError(SENSOR_QUEUE_NOT_RECV);
     }
-
+    dbgEvent(AFTER_RECV_SENSOR_QUEUE);
 }
 
 BaseType_t sendToSensorThreadQueueFromISR(void *targetMessage) {
+    dbgEvent(BEFORE_SEND_SENSOR_ISR);
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
     if (xQueueSendFromISR(sensor_thread_queue, targetMessage, &xHigherPriorityTaskWoken)) {
@@ -42,8 +44,8 @@ BaseType_t sendToSensorThreadQueueFromISR(void *targetMessage) {
     }
     else{
         //error, proceed to stop
-        while(1) {}
+        handleFatalError(SENSOR_QUEUE_NOT_SENT);
     }
-
+    dbgEvent(AFTER_SEND_SENSOR_ISR);
     return xHigherPriorityTaskWoken;
 }

@@ -7,40 +7,47 @@
 #include <stdio.h>
 #include "uart_thread_queue.h"
 #include "FreeRTOS.h"
+#include <FreeRTOS.h>
+#include <queue.h>
+#include "debug.h"
 
-static QueueHandle_t queue = NULL;
-void create_UART_Queue()
+#define BUFFER_SIZE 50
+#define QUEUE_LENGTH 20
+
+static QueueHandle_t uart_thread_queue = NULL;
+void createUARTthreadQueue()
 {
-
-   queue = xQueueCreate(10, sizeof(UART_Thread_Queue));
-    if (queue == NULL){
-        //error handling
-    }
+   uart_thread_queue = xQueueCreate(QUEUE_LENGTH, BUFFER_SIZE);
+   if (uart_thread_queue == NULL){
+       handleFatalError(UART_QUEUE_NOT_CREATED);
+   }
 }
-void read_from_queue(void* retrievedMsg)
+void receiveFromUARTthreadQueue(void* retrievedMsg)
 {
     //QueueHandle_t queue;
 
-        if (xQueueReceive(queue, retrievedMsg, portMAX_DELAY))
-        {
+    if (xQueueReceive(uart_thread_queue, retrievedMsg, portMAX_DELAY)) {
 
-        }else{
-            // error handling
-        }
+    }
+    else {
+        // error handling
+        handleFatalError(UART_QUEUE_NOT_RECV);
+    }
 
 }
 
 
 
-BaseType_t write_queue(void *outputMessage)
+BaseType_t sendToUARTthreadQueueFromISR(void *outputMessage)
 {
     BaseType_t HighPriorityEnable = pdFALSE;
 
-    if (xQueueSendFromISR(queue, outputMessage, &HighPriorityEnable))
+    if (xQueueSendFromISR(uart_thread_queue, outputMessage, &HighPriorityEnable))
             {
 
             }else{
                 //error handling
+                handleFatalError(UART_QUEUE_NOT_SENT);
             }
     return HighPriorityEnable;
 }

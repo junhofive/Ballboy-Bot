@@ -24,8 +24,8 @@
              {
 
              }
-             UART_Thread_Queue retrieveMsg;
-             read_from_queue(&retrieveMsg);
+             //UART_Thread_Queue retrieveMsg;
+             //read_from_queue(&retrieveMsg);
 
 
               uint8_t buffer[100];

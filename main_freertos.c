@@ -45,6 +45,9 @@
 /* RTOS header files */
 #include <FreeRTOS.h>
 #include <task.h>
+#include "debug.h"
+
+
 
 #include <ti/drivers/Board.h>
 
@@ -80,13 +83,13 @@ int main(void)
     retc |= pthread_attr_setstacksize(&attrs, THREADSTACKSIZE);
     if (retc != 0) {
         /* failed to set attributes */
-        while (1) {}
+        handleFatalError(PTHREAD_DETACHSTATE_ERROR);
     }
 
     retc = pthread_create(&thread, &attrs, mainThread, NULL);
     if (retc != 0) {
         /* pthread_create() failed */
-        while (1) {}
+        handleFatalError(PTHREAD_STACKSIZE_ERROR);
     }
 
     /* Start the FreeRTOS scheduler */

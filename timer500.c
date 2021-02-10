@@ -12,6 +12,7 @@
 #include <string.h>
 #include <queue.h>
 #include <FreeRTOSConfig.h>
+#include "debug.h"
 
 #include <ti/drivers/ADC.h>
 #include <ti/drivers/Timer.h>
@@ -26,8 +27,6 @@ void *timer500Thread(void *arg0){
     Timer_Handle timer500;
     Timer_Params params;
 
-    Timer_init();
-
     Timer_Params_init(&params);
     params.period = 500000; // 500000 microsecond = 500 ms
     params.periodUnits = Timer_PERIOD_US;
@@ -38,12 +37,12 @@ void *timer500Thread(void *arg0){
 
     if (timer500 == NULL) {
        /* Failed to initialized timer */
-       while (1) {}
+        handleFatalError(TIMER_NOT_INITIALIZED);
     }
 
     if (Timer_start(timer500) == Timer_STATUS_ERROR) {
        /* Failed to start timer */
-       while (1) {}
+        handleFatalError(TIMER_NOT_OPEN);
     }
 
     return (NULL);
@@ -54,6 +53,7 @@ void *timer500Thread(void *arg0){
  * Period = 500 ms
  */
 void timer500Callback(Timer_Handle myHandle, int_fast16_t status){
+    dbgEvent(ENTERING_TIMER_FIVE);
     SensorThreadMessage message;
     BaseType_t xHigherPriorityTaskWoken;
 
@@ -79,4 +79,5 @@ void timer500Callback(Timer_Handle myHandle, int_fast16_t status){
     xHigherPriorityTaskWoken = sendToSensorThreadQueueFromISR(&message);
 
     portEND_SWITCHING_ISR(xHigherPriorityTaskWoken);
+    dbgEvent(LEAVING_TIMER_FIVE);
 }

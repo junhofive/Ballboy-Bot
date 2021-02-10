@@ -6,8 +6,9 @@
  */
 
 #include "sensor_thread_state.h"
-
+#include "uart_thread_queue.h"
 #include "sensor_task.h"
+#include "debug.h"
 
 #include <stdint.h>
 #include <stddef.h>
@@ -40,11 +41,14 @@ void enterStateMachine(SensorThreadMessage *receivedMessage) {
     }
     switch (currentState) {
         case INIT_AVERAGE:
+            dbgEvent(ENTERING_INIT_AVERAGE);
             if (newMessage == TIMER500_MESSAGE) {
                 currentState = UPDATE_AVERAGE;
             }
+            dbgEvent(LEAVING_INIT_AVERAGE);
             break;
         case UPDATE_AVERAGE:
+            dbgEvent(ENTERING_UPDATE_AVERAGE);
             if (newMessage == TIMER70_MESSAGE) {
                 if (receivedMessage->value != NULL) {
                     sensorCount += 1;
@@ -68,6 +72,7 @@ void enterStateMachine(SensorThreadMessage *receivedMessage) {
 
                 currentState = INIT_AVERAGE;
             }
+            dbgEvent(LEAVING_UPDATE_AVERAGE);
             break;
     }
 }

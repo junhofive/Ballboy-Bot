@@ -5,11 +5,8 @@
  *      Author: JO_Desktop
  */
 
-#include "FreeRTOS.h"
 #include "sensor_thread_queue.h"
 #include "timer70.h"
-
-#include "queue.h"
 
 #define QUEUE_LENGTH 10
 /* Static Variable */
@@ -23,10 +20,10 @@ void createSensorThreadQueue() {
     }
 }
 
-void receiveFromSensorThreadQueue(void* receivedMsg) {
-    SensorThreadMessage* someMessage = (SensorThreadMessage* ) receivedMsg;
+void receiveFromSensorThreadQueue(SensorThreadMessage* receivedMsg) {
+    //SensorThreadMessage* someMessage = (SensorThreadMessage* ) receivedMsg;
 
-    if (xQueueReceive(sensor_thread_queue, someMessage, portMAX_DELAY)) {
+    if (xQueueReceive(sensor_thread_queue, receivedMsg, portMAX_DELAY)) {
 
     }
     else {
@@ -37,9 +34,13 @@ void receiveFromSensorThreadQueue(void* receivedMsg) {
 
 BaseType_t sendToSensorThreadQueueFromISR(void *targetMessage) {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-    c_struct *message;
-    message = (c_struct *)pvParameters;
-    if (xQueueSend(sensor_thread_queue, (void *) &message, (portTickType) 0) != pdPASS) {
+
+    if (xQueueSendFromISR(sensor_thread_queue, targetMessage, &xHigherPriorityTaskWoken)) {
 
     }
+    else{
+        //error, proceed to stop
+    }
+
+    return xHigherPriorityTaskWoken;
 }

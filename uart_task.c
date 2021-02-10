@@ -20,6 +20,10 @@
          while(1){
 
              urt = UART_open(0, &parameters);
+             if (urt == NULL)
+             {
+
+             }
              UART_Thread_Queue retrieveMsg;
              read_from_queue(&retrieveMsg);
 

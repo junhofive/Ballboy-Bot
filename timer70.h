@@ -1,13 +1,17 @@
 /*
  * timer70.h
- *
- *  Created on: Feb 6, 2021
- *      Author: JO_Desktop
+ * Editor: Tianyu Li
  */
 
 #ifndef TIMER70_H_
 #define TIMER70_H_
 
+//*************************************************************************************************
+/*
+ * Struct for message
+ */
+#include "sensor_thread_queue.h"
 
-
+void *timer70Thread(void *arg0);
+//*************************************************************************************************
 #endif /* TIMER70_H_ */

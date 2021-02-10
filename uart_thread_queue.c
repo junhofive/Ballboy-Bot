@@ -24,7 +24,7 @@ void createUARTthreadQueue()
 }
 void receiveFromUARTthreadQueue(void* retrievedMsg)
 {
-    //QueueHandle_t queue;
+    dbgEvent(BEFORE_RECV_UART_QUEUE);
 
     if (xQueueReceive(uart_thread_queue, retrievedMsg, portMAX_DELAY)) {
 
@@ -33,13 +33,14 @@ void receiveFromUARTthreadQueue(void* retrievedMsg)
         // error handling
         handleFatalError(UART_QUEUE_NOT_RECV);
     }
-
+    dbgEvent(AFTER_RECV_UART_QUEUE);
 }
 
 
 
 BaseType_t sendToUARTthreadQueueFromISR(void *outputMessage)
 {
+    dbgEvent(BEFORE_SEND_UART_ISR);
     BaseType_t HighPriorityEnable = pdFALSE;
 
     if (xQueueSendFromISR(uart_thread_queue, outputMessage, &HighPriorityEnable))
@@ -49,8 +50,6 @@ BaseType_t sendToUARTthreadQueueFromISR(void *outputMessage)
                 //error handling
                 handleFatalError(UART_QUEUE_NOT_SENT);
             }
+    dbgEvent(AFTER_SEND_UART_ISR);
     return HighPriorityEnable;
 }
-// create queue
-// read from queue
-// write queue

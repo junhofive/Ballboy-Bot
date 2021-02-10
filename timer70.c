@@ -1,6 +1,6 @@
 /*
  * timer70.c
- * Editor: Tianyu Li
+ * Editor: Tianyu Li, Junho Oh
  */
 
 /*
@@ -30,6 +30,7 @@
 
 
 void timer70Callback(Timer_Handle myHandle, int_fast16_t status);
+int convert_to_mm(ADC_Handle adc);
 /*
  * This function is used to convert the sensor reading to mm
  */
@@ -52,12 +53,12 @@ int convert_to_mm(ADC_Handle adc){
     // Knowing the voltage, convert the voltage to distance
     // Formula on this website: https://www.phidgets.com/?tier=3&catid=5&pcid=3&prodid=70
     // Using Sharp 10-80 cm sensor
-    voltage_ratio = adcValue0MicroVolt / 5000000;    // 5V input
+    voltage_ratio = (float)adcValue0MicroVolt / 5000000;    // 5V input
 
     distance = (4.8 / (voltage_ratio - 0.02 )) * 10;        // distance in mm
 
     // See if the distance is out of range
-    if ( (distance < 10)||(distance > 80) ){
+    if ( (distance < 100)||(distance > 800) ){
         distance = -1;
     }
 
@@ -107,6 +108,7 @@ void timer70Callback(Timer_Handle myHandle, int_fast16_t status)
     int         distance;
     SensorThreadMessage message;
     BaseType_t xHigherPriorityTaskWoken;
+
     ADC_Params_init(&params);
 
     adc = ADC_open(CONFIG_ADC_0, &params);

@@ -1,13 +1,17 @@
 /*
  * timer500.h
- *
- *  Created on: Feb 6, 2021
- *      Author: JO_Desktop
+ * Editor: Tianyu Li
  */
+
 
 #ifndef TIMER500_H_
 #define TIMER500_H_
 
+//*************************************************************************************************
+#include <ti/drivers/dpl/HwiP.h>
+#include "timer500.h"
+#include "sensor_thread_queue.h"
 
-
+void *timer500Thread(void *arg0);
+//*************************************************************************************************
 #endif /* TIMER500_H_ */

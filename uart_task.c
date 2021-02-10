@@ -10,16 +10,21 @@
 // this function will be executed by each thread
  void *uart_task(void *arg){
      UART_init();
-     UART_params parameters;
-     UART_params_init(&parameters);
-     parameters.baud_rate = 9600;
-     parameters.read_mode = UART_MODE_BLOCKING;
-     parameters.write_mode = UART_MODE_BLOCKING;
-     UART_handle urt;
+     UART_Params parameters;
+     UART_Params_init(&parameters);
+     parameters.baudRate = 9600;
+     parameters.readMode = UART_MODE_BLOCKING;
+     parameters.writeMode = UART_MODE_BLOCKING;
+     UART_Handle urt;
+     //dbgEvent(DLOC_UART_ISR_BEGIN);
          while(1){
 
-             urt = UART_open(CONFIG_UART0, &parameters);
-             UART_Thread_Queue retriveMsg;
+             urt = UART_open(0, &parameters);
+             if (urt == NULL)
+             {
+
+             }
+             UART_Thread_Queue retrieveMsg;
              read_from_queue(&retrieveMsg);
 
 

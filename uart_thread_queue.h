@@ -1,7 +1,5 @@
 /*
  * uart_thread_queue.h
- *
- *
  */
 
 #ifndef UART_THREAD_QUEUE_H_
@@ -9,13 +7,12 @@
 
 #include <FreeRTOS.h>
 
-//typedef struct UART_Thread_Queue{
-//    char message_queue[10];
-//    int val;
-//}UART_Thread_Queue;
+char message[20]; // Received C string
 
 void createUARTthreadQueue();
-void receiveFromUARTthreadQueue(void* retrievedMsg);
-BaseType_t sendToUARTthreadQueueFromISR(void *outputMessage);
+
+void receiveFromUARTthreadQueue(char* retrievedMsg);
+
+BaseType_t sendToUART(char* outputMsg);
 
 #endif /* UART_THREAD_QUEUE_H_ */

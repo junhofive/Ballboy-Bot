@@ -1,7 +1,6 @@
 /*
  * uart_thread_queue.c
- *
- *
+ * code stack for the uart_thread_queue
  */
 
 #include <stdio.h>
@@ -15,6 +14,7 @@
 #define QUEUE_LENGTH 50
 
 static QueueHandle_t uart_thread_queue = NULL;
+
 void createUARTthreadQueue()
 {
    uart_thread_queue = xQueueCreate(QUEUE_LENGTH, BUFFER_SIZE);
@@ -22,7 +22,7 @@ void createUARTthreadQueue()
        handleFatalError(UART_QUEUE_NOT_CREATED);
    }
 }
-void receiveFromUARTthreadQueue(void* retrievedMsg)
+void receiveFromUARTthreadQueue(char* retrievedMsg)
 {
     dbgEvent(BEFORE_RECV_UART_QUEUE);
 
@@ -36,20 +36,17 @@ void receiveFromUARTthreadQueue(void* retrievedMsg)
     dbgEvent(AFTER_RECV_UART_QUEUE);
 }
 
-
-
-BaseType_t sendToUARTthreadQueueFromISR(void *outputMessage)
+BaseType_t sendToUART(char* outputMsg)
 {
     dbgEvent(BEFORE_SEND_UART_ISR);
     BaseType_t HighPriorityEnable = pdFALSE;
 
-    if (xQueueSendFromISR(uart_thread_queue, outputMessage, &HighPriorityEnable))
-            {
+    if (xQueueSendFromISR(uart_thread_queue, outputMsg, &HighPriorityEnable)){
 
-            }else{
-                //error handling
-                handleFatalError(UART_QUEUE_NOT_SENT);
-            }
+    }else{
+        //error handling
+        handleFatalError(UART_QUEUE_NOT_SENT);
+    }
     dbgEvent(AFTER_SEND_UART_ISR);
     return HighPriorityEnable;
 }

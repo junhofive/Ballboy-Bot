@@ -1,6 +1,5 @@
 /*
  * uart_task.h
- *
  */
 
 #ifndef UART_TASK_H_

@@ -6,6 +6,7 @@
 #define UART_THREAD_QUEUE_H_
 
 #include <FreeRTOS.h>
+#include <ti/drivers/UART.h>
 
 char message[20]; // Received C string
 

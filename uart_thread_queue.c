@@ -38,15 +38,26 @@ void receiveFromUARTthreadQueue(char* retrievedMsg)
 
 BaseType_t sendToUART(char* outputMsg)
 {
-    dbgEvent(BEFORE_SEND_UART_ISR);
+    dbgEvent(BEFORE_SEND_UART);
     BaseType_t HighPriorityEnable = pdFALSE;
 
-    if (xQueueSendFromISR(uart_thread_queue, outputMsg, &HighPriorityEnable)){
+    uint8_t buffer[100];
+    UART_Handle uart;
+    UART_Params parameters;
 
-    }else{
-        //error handling
-        handleFatalError(UART_QUEUE_NOT_SENT);
+    UART_init();
+    UART_Params_init(&parameters);
+    // Specify the parameters if needed
+
+    uart = UART_open(CONFIG_UART_0, &parameters);
+
+    if (uart == NULL) {
+        handleFatalError(UART_NOT_OPEN);
     }
-    dbgEvent(AFTER_SEND_UART_ISR);
+
+    // get the message string, and send to UART
+    UART_write(uart, outputMsg, 20); // 20 since set the string size to 20 in header file
+
+    dbgEvent(AFTER_SEND_UART);
     return HighPriorityEnable;
 }

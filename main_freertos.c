@@ -46,10 +46,12 @@
 #include <FreeRTOS.h>
 #include <task.h>
 #include "debug.h"
-
+#include "sensor_thread_queue.h"
+#include "uart_thread_queue.h"
 
 
 #include <ti/drivers/Board.h>
+#include <ti/drivers/GPIO.h>
 
 extern void *mainThread(void *arg0);
 
@@ -72,7 +74,9 @@ int main(void)
 #endif
 
     Board_init();
-
+    GPIO_init();
+    createSensorThreadQueue();
+    createUARTthreadQueue();
     /* Initialize the attributes structure with default values */
     pthread_attr_init(&attrs);
 
@@ -83,13 +87,13 @@ int main(void)
     retc |= pthread_attr_setstacksize(&attrs, THREADSTACKSIZE);
     if (retc != 0) {
         /* failed to set attributes */
-        handleFatalError(PTHREAD_DETACHSTATE_ERROR);
+        handleFatalError(PTHREAD_SET_ATTR_FAILED_MAIN_C);
     }
 
     retc = pthread_create(&thread, &attrs, mainThread, NULL);
     if (retc != 0) {
         /* pthread_create() failed */
-        handleFatalError(PTHREAD_STACKSIZE_ERROR);
+        handleFatalError(PTHREAD_CREATE_FAILED_MAIN_C );
     }
 
     /* Start the FreeRTOS scheduler */
@@ -110,5 +114,5 @@ int main(void)
 void vApplicationStackOverflowHook(TaskHandle_t pxTask, char *pcTaskName)
 {
     //Handle FreeRTOS Stack Overflow
-    handleFatalError(FREERTOS_STACK_OVERFLOW);
+//    handleFatalError(FREERTOS_STACK_OVERFLOW);
 }

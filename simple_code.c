@@ -60,23 +60,7 @@
 /*
  *  ======== mainThread ========
  */
-void *mainThread(void *arg0)
-{
-    dbgEvent(ENTERING_TASK);
-    pthread_t           timer70_thread, timer500_thread, sensor_thread, uart_thread;
-    pthread_attr_t      attrs;
-    struct sched_param  priParam;
-    int                 retc;
-    int                 detachState;
-
-    /* Call driver init functions */
-    GPIO_init();
-    UART_init();
-    ADC_init();
-    Timer_init();
-
-    createSensorThreadQueue();
-    createUARTthreadQueue();
+void setAllGPIOsToZero() {
     GPIO_write(CONFIG_GPIO_7, 0);
     GPIO_write(CONFIG_GPIO_6, 0);
     GPIO_write(CONFIG_GPIO_5, 0);
@@ -85,27 +69,65 @@ void *mainThread(void *arg0)
     GPIO_write(CONFIG_GPIO_2, 0);
     GPIO_write(CONFIG_GPIO_1, 0);
     GPIO_write(CONFIG_GPIO_0, 0);
+}
+
+void *mainThread(void *arg0)
+{
+    dbgEvent(ENTER_MAIN_THREAD);
+#if 0
+    pthread_t           timer70_thread, timer500_thread, sensor_thread, uart_thread;
+    pthread_attr_t      attrs;
+    struct sched_param  priParam;
+    int                 retc;
+#endif
+    pthread_t           timer70_thread, timer500_thread, sensor_thread, uart_thread;
+    pthread_attr_t      attrs;
+    struct sched_param  priParam;
+    int                 retc;
+    int                 detachState;
+
+    /* Call driver init functions */
+
+    UART_init();
+    ADC_init();
+    Timer_init();
+
+    setAllGPIOsToZero();
+
+#if 0
     pthread_attr_init(&attrs);
     detachState = PTHREAD_CREATE_DETACHED;
-
     retc = pthread_attr_setdetachstate(&attrs, detachState);
     if (retc != 0) {
         /* pthread_attr_setdetachstate() failed */
-        handleFatalError(PTHREAD_DETACHSTATE_ERROR);
+        while (1);
     }
     retc |= pthread_attr_setstacksize(&attrs, THREADSTACKSIZE);
     if (retc != 0) {
         /* pthread_attr_setstacksize() failed */
-        handleFatalError(PTHREAD_STACKSIZE_ERROR);
+        while (1);
     }
-
     priParam.sched_priority = 1;
     pthread_attr_setschedparam(&attrs, &priParam);
+    retc = pthread_create(&timer500_thread, &attrs, timer500Thread, NULL);
+    if (retc != 0) {
+        /* pthread_create() failed */
+        while (1);
+    }
+#endif
+
+
+    pthread_attr_init(&attrs);
+    priParam.sched_priority = 1;
+    retc = pthread_attr_setschedparam(&attrs, &priParam);
+    retc |= pthread_attr_setstacksize(&attrs, THREADSTACKSIZE);
     retc = pthread_create(&timer70_thread, &attrs, timer70Thread, NULL);
+
     if (retc != 0) {
         /* pthread_create() failed */
         handleFatalError(PTHREAD_NOT_CREATED);
     }
+#if 0
     retc = pthread_create(&timer500_thread, &attrs, timer500Thread, NULL);
     if (retc != 0) {
         /* pthread_create() failed */
@@ -121,5 +143,6 @@ void *mainThread(void *arg0)
         /* pthread_create() failed */
         handleFatalError(PTHREAD_NOT_CREATED);
     }
+#endif
     return (NULL);
 }

@@ -28,6 +28,7 @@
 #include <ti/drivers/Timer.h>
 #include <ti/drivers/GPIO.h>
 #include "ti_drivers_config.h"
+#include <ti/drivers/dpl/HwiP.h>
 
 
 void timer70Callback(Timer_Handle myHandle, int_fast16_t status);
@@ -49,7 +50,7 @@ int convert_to_mm(ADC_Handle adc){
         adcValue0MicroVolt = ADC_convertRawToMicroVolts(adc, adcValue0);
     }
     else {  // convert failed
-        handleFatalError(ADC_CONVERSION_ERROR);
+//        handleFatalError(ADC_CONVERSION_ERROR);
     }
 
     // Knowing the voltage, convert the voltage to distance
@@ -81,12 +82,12 @@ void *timer70Thread(void *arg0){
 
     if (timer70 == NULL) {
        /* Failed to initialized timer */
-       handleFatalError(TIMER_NOT_INITIALIZED);
+//       handleFatalError(TIMER_NOT_INITIALIZED);
     }
 
     if (Timer_start(timer70) == Timer_STATUS_ERROR) {
        /* Failed to start timer */
-        handleFatalError(TIMER_NOT_OPEN);
+//        handleFatalError(TIMER_NOT_OPEN);
     }
 
     return (NULL);
@@ -102,7 +103,7 @@ void timer70Callback(Timer_Handle myHandle, int_fast16_t status)
     // Read the ADC output
     // Using pin 59, CONFIG_ADC_0
     // blocking call: portMAX_DELAY
-    dbgEvent(ENTERING_TIMER);
+    dbgEvent(ENTER_TIMER70);
     ADC_Handle  adc;
     ADC_Params  params;
     int         distance;
@@ -120,13 +121,15 @@ void timer70Callback(Timer_Handle myHandle, int_fast16_t status)
 
     distance = convert_to_mm(adc);
     message.value = distance;
-    strcpy(message.message_type, "TIMER70_MESSAGE");
+    message.message_type = TIMER70_MESSAGE;
 
     ADC_close(adc);
-
     // send to message queue
+    dbgEvent(BEFORE_SEND_SENSOR_QUE);
     xHigherPriorityTaskWoken = sendToSensorThreadQueueFromISR(&message);
+//    sendToSensorThreadQueue(&message);
+    dbgEvent(AFTER_SEND_SENSOR_QUE);
 
     portEND_SWITCHING_ISR(xHigherPriorityTaskWoken);
-    dbgEvent(LEAVING_TIMER);
+    dbgEvent(LEAVE_TIMER70);
 }

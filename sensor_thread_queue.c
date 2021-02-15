@@ -23,22 +23,27 @@ void createSensorThreadQueue() {
 }
 
 void receiveFromSensorThreadQueue(SensorThreadMessage* receivedMsg) {
-    //SensorThreadMessage* someMessage = (SensorThreadMessage* ) receivedMsg;
-    dbgEvent(BEFORE_RECV_SENSOR_QUEUE);
     if (xQueueReceive(sensor_thread_queue, receivedMsg, portMAX_DELAY)) {
 
     }
     else {
         //Error, proceed to stop
-        handleFatalError(SENSOR_QUEUE_NOT_RECV);
+        handleFatalError(SENSOR_QUEUE_NOT_RECEIVED);
     }
-    dbgEvent(AFTER_RECV_SENSOR_QUEUE);
 }
+#if 0
+void sendToSensorThreadQueue(SensorThreadMessage* targetMsg) {
+    if (xQueueSend(sensor_thread_queue, target, portMAX_DELAY)) {
 
-BaseType_t sendToSensorThreadQueueFromISR(void *targetMessage) {
-    dbgEvent(BEFORE_SEND_SENSOR_ISR);
+    }
+    else {
+        //Error, proceed to stop
+        handleFatalError(SENSOR_QUEUE_NOT_SENT);
+    }
+}
+#endif
+BaseType_t sendToSensorThreadQueueFromISR(SensorThreadMessage* targetMessage) {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-
     if (xQueueSendFromISR(sensor_thread_queue, targetMessage, &xHigherPriorityTaskWoken)) {
 
     }
@@ -46,6 +51,6 @@ BaseType_t sendToSensorThreadQueueFromISR(void *targetMessage) {
         //error, proceed to stop
         handleFatalError(SENSOR_QUEUE_NOT_SENT);
     }
-    dbgEvent(AFTER_SEND_SENSOR_ISR);
     return xHigherPriorityTaskWoken;
 }
+

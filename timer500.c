@@ -37,12 +37,12 @@ void *timer500Thread(void *arg0){
 
     if (timer500 == NULL) {
        /* Failed to initialized timer */
-        handleFatalError(TIMER_NOT_INITIALIZED);
+//        handleFatalError(TIMER_NOT_INITIALIZED);
     }
 
     if (Timer_start(timer500) == Timer_STATUS_ERROR) {
        /* Failed to start timer */
-        handleFatalError(TIMER_NOT_OPEN);
+//        handleFatalError(TIMER_NOT_OPEN);
     }
 
     return (NULL);
@@ -53,7 +53,7 @@ void *timer500Thread(void *arg0){
  * Period = 500 ms
  */
 void timer500Callback(Timer_Handle myHandle, int_fast16_t status){
-    dbgEvent(ENTERING_TIMER_FIVE);
+//    dbgEvent(ENTERING_TIMER_FIVE);
     SensorThreadMessage message;
     BaseType_t xHigherPriorityTaskWoken;
 
@@ -73,11 +73,12 @@ void timer500Callback(Timer_Handle myHandle, int_fast16_t status){
     int elapsed_time = 1000 * tick_count;
 
     message.value = elapsed_time;
-    strcpy(message.message_type, "TIMER500_MESSAGE");
+    message.message_type = TIMER500_MESSAGE;
+//    strcpy(message.message_type, "TIMER500_MESSAGE");
 
     // send to message queue
     xHigherPriorityTaskWoken = sendToSensorThreadQueueFromISR(&message);
 
     portEND_SWITCHING_ISR(xHigherPriorityTaskWoken);
-    dbgEvent(LEAVING_TIMER_FIVE);
+//    dbgEvent(LEAVING_TIMER_FIVE);
 }

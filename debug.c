@@ -18,9 +18,29 @@
 #include <FreeRTOS.h>
 #include <FreeRTOSConfig.h>
 #include <task.h>
+#include <ti/drivers/dpl/HwiP.h>
 
 void dbgEvent(unsigned int event) {
     if (event <= 127){
+        GPIO_write(CONFIG_GPIO_7, 1);
+
+        GPIO_write(CONFIG_GPIO_6, event & BIT_6);
+
+        GPIO_write(CONFIG_GPIO_5, event & BIT_5);
+
+        GPIO_write(CONFIG_GPIO_4, event & BIT_4);
+
+        GPIO_write(CONFIG_GPIO_3, event & BIT_3);
+
+        GPIO_write(CONFIG_GPIO_2, event & BIT_2);
+
+        GPIO_write(CONFIG_GPIO_1, event & BIT_1);
+
+        GPIO_write(CONFIG_GPIO_0, event & BIT_0);
+
+        GPIO_write(CONFIG_GPIO_7, 0);
+#if 0
+
         GPIO_write(CONFIG_GPIO_7, 1);
 
         if (event & BIT_SEVEN)
@@ -59,6 +79,7 @@ void dbgEvent(unsigned int event) {
             GPIO_write(CONFIG_GPIO_0, 0);
 
         GPIO_write(CONFIG_GPIO_7, 0);
+#endif
     }
     else{
         handleFatalError(event);
@@ -70,13 +91,16 @@ void handleFatalError(unsigned int eventLabel) {
 
     /* Disable hardware interrupts */
     //enterCriticalSection();
+    uintptr_t key1;
+    key1 = HwiP_disable();
 
     /* Disable threads */
     vTaskSuspendAll();
 
     GPIO_setConfig(CONFIG_GPIO_LED_0, GPIO_CFG_OUT_STD | GPIO_CFG_OUT_LOW);
-    GPIO_toggle(CONFIG_GPIO_LED_0);
-
     dbgEvent(eventLabel);
+
+    // loop for blinking
+    GPIO_toggle(CONFIG_GPIO_LED_0);
 }
 

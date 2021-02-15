@@ -13,8 +13,13 @@
 
 #define MESSAGE_LENGTH 20
 
+typedef enum {
+    TIMER70_MESSAGE,
+    TIMER500_MESSAGE
+} messageType;
+
 typedef struct SensorThreadMessage {
-    char  message_type[MESSAGE_LENGTH];
+    messageType message_type;
     int   value;
 } SensorThreadMessage;
 
@@ -22,6 +27,6 @@ void createSensorThreadQueue();
 
 void receiveFromSensorThreadQueue(SensorThreadMessage* receivedMsg);
 
-BaseType_t sendToSensorThreadQueueFromISR(void *targetMessage);
+BaseType_t sendToSensorThreadQueueFromISR(SensorThreadMessage* targetMessage);
 
 #endif /* SENSOR_THREAD_QUEUE_H_ */

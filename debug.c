@@ -101,6 +101,10 @@ void handleFatalError(unsigned int eventLabel) {
     dbgEvent(eventLabel);
 
     // loop for blinking
-    GPIO_toggle(CONFIG_GPIO_LED_0);
+    unsigned int count = 0;
+    while (count < 1000) {
+        GPIO_toggle(CONFIG_GPIO_LED_0);
+        count++;
+    }
 }
 

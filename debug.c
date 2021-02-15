@@ -97,7 +97,6 @@ void handleFatalError(unsigned int eventLabel) {
     /* Disable threads */
     vTaskSuspendAll();
 
-    GPIO_setConfig(CONFIG_GPIO_LED_0, GPIO_CFG_OUT_STD | GPIO_CFG_OUT_LOW);
     dbgEvent(eventLabel);
 
     // loop for blinking

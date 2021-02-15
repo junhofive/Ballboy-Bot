@@ -133,12 +133,13 @@ void *mainThread(void *arg0)
         /* pthread_create() failed */
         handleFatalError(PTHREAD_NOT_CREATED);
     }
-#if 0
+
     retc = pthread_create(&sensor_thread, &attrs, sensor_task, NULL);
     if (retc != 0) {
         /* pthread_create() failed */
         handleFatalError(PTHREAD_NOT_CREATED);
     }
+#if 0
     retc = pthread_create(&uart_thread, &attrs, uart_task, NULL);
     if (retc != 0) {
         /* pthread_create() failed */

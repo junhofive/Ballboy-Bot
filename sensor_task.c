@@ -14,14 +14,17 @@
 #include <stddef.h>
 
 void *sensor_task(void *arg0) {
-//    dbgEvent(ENTERING_TASK);
+    dbgEvent(ENTER_SENSOR_TASK);
+    SensorThreadMessage sensorMessage;
 
-//    dbgEvent(BEFORE_LOOP_TASK);
+    dbgEvent(BEFORE_SENSOR_LOOP);
     while(1) {
-        SensorThreadMessage sensorMessage;
+        dbgEvent(BEFORE_RECEIVE_SENSOR_QUE);
+        sensorMessage = receiveFromSensorThreadQueue();
+        dbgEvent(AFTER_RECEIVE_SENSOR_QUE);
 
-        receiveFromSensorThreadQueue(&sensorMessage);
-
+        dbgEvent(ENTER_STATE_MACHINE);
         enterStateMachine(&sensorMessage);
+        dbgEvent(LEAVE_STATE_MACHINE);
     }
 }

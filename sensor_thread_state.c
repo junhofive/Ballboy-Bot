@@ -18,11 +18,6 @@
 #define BUFFER_SIZE 50
 
 typedef enum {
-    TIMER70_MESSAGE,
-    TIMER500_MESSAGE
-} messageType;
-
-typedef enum {
     INIT_AVERAGE,
     UPDATE_AVERAGE
 } threadState;
@@ -32,24 +27,18 @@ static threadState currentState = INIT_AVERAGE;
 
 void enterStateMachine(SensorThreadMessage *receivedMessage) {
 
-    messageType newMessage;
-    if (strcmp(receivedMessage->message_type, "TIMER70_MESSAGE") == 0) {
-        newMessage = TIMER70_MESSAGE;
-    }
-    if (strcmp(receivedMessage->message_type, "TIMER500_MESSAGE") == 0) {
-        newMessage = TIMER500_MESSAGE;
-    }
     switch (currentState) {
         case INIT_AVERAGE:
-            dbgEvent(ENTERING_INIT_AVERAGE);
-            if (newMessage == TIMER500_MESSAGE) {
+            dbgEvent(INIT_AVERAGE_STATE);
+            if (receivedMessage->message_type == TIMER500_MESSAGE) {
                 currentState = UPDATE_AVERAGE;
+                dbgEvent(LEAVE_INIT_AVERAGE_STATE);
             }
-            dbgEvent(LEAVING_INIT_AVERAGE);
+
             break;
         case UPDATE_AVERAGE:
-            dbgEvent(ENTERING_UPDATE_AVERAGE);
-            if (newMessage == TIMER70_MESSAGE) {
+            dbgEvent(UPDATE_AVERAGE_STATE);
+            if (receivedMessage->message_type == TIMER70_MESSAGE) {
                 if (receivedMessage->value != NULL) {
                     sensorCount += 1;
                     sensorTotal += receivedMessage->value;
@@ -59,7 +48,7 @@ void enterStateMachine(SensorThreadMessage *receivedMessage) {
 
                 }
             }
-            if (newMessage == TIMER500_MESSAGE) {
+            if (receivedMessage->message_type == TIMER500_MESSAGE) {
                 int averageSensorValue = 0;
 
                 if (sensorCount != 0) {
@@ -69,10 +58,10 @@ void enterStateMachine(SensorThreadMessage *receivedMessage) {
                 char messageBuffer[BUFFER_SIZE];
                 snprintf(messageBuffer, BUFFER_SIZE, "Sensor Avg = %d; Time = %d\n", averageSensorValue, receivedMessage->value);
                 // Send to UART queue
-
+                dbgEvent(LEAVE_UPDATE_AVERAGE_STATE);
                 currentState = INIT_AVERAGE;
             }
-            dbgEvent(LEAVING_UPDATE_AVERAGE);
+
             break;
     }
 }

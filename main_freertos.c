@@ -48,6 +48,7 @@
 #include "debug.h"
 #include "sensor_thread_queue.h"
 #include "uart_thread_queue.h"
+#include "ti_drivers_config.h"
 
 
 #include <ti/drivers/Board.h>
@@ -77,6 +78,7 @@ int main(void)
     GPIO_init();
     createSensorThreadQueue();
     createUARTthreadQueue();
+    GPIO_setConfig(CONFIG_GPIO_LED_0, GPIO_CFG_OUT_STD | GPIO_CFG_OUT_LOW);
     /* Initialize the attributes structure with default values */
     pthread_attr_init(&attrs);
 

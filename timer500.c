@@ -53,7 +53,7 @@ void *timer500Thread(void *arg0){
  * Period = 500 ms
  */
 void timer500Callback(Timer_Handle myHandle, int_fast16_t status){
-//    dbgEvent(ENTERING_TIMER_FIVE);
+    dbgEvent(ENTER_TIMER500);
     SensorThreadMessage message;
     BaseType_t xHigherPriorityTaskWoken;
 
@@ -74,11 +74,12 @@ void timer500Callback(Timer_Handle myHandle, int_fast16_t status){
 
     message.value = elapsed_time;
     message.message_type = TIMER500_MESSAGE;
-//    strcpy(message.message_type, "TIMER500_MESSAGE");
 
     // send to message queue
+    dbgEvent(BEFORE_SEND_TIMER500_MSG);
     xHigherPriorityTaskWoken = sendToSensorThreadQueueFromISR(&message);
+    dbgEvent(AFTER_SEND_TIMER500_MSG);
 
     portEND_SWITCHING_ISR(xHigherPriorityTaskWoken);
-//    dbgEvent(LEAVING_TIMER_FIVE);
+    dbgEvent(LEAVE_TIMER500);
 }

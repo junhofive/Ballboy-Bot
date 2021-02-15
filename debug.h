@@ -36,8 +36,11 @@
 #define BEFORE_RECEIVE_SENSOR_QUE           0x31
 #define AFTER_RECEIVE_SENSOR_QUE            0x39
 
-#define BEFORE_SEND_SENSOR_QUE              0x3a
-#define AFTER_SEND_SENSOR_QUE               0x3f
+#define BEFORE_SEND_TIMER70_MSG             0x3a
+#define AFTER_SEND_TIMER70_MSG              0x3b
+
+#define BEFORE_SEND_TIMER500_MSG            0x3e
+#define AFTER_SEND_TIMER500_MSG             0x3f
 
 
 /* Sensor Queue Errors */

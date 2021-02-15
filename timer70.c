@@ -125,10 +125,9 @@ void timer70Callback(Timer_Handle myHandle, int_fast16_t status)
 
     ADC_close(adc);
     // send to message queue
-    dbgEvent(BEFORE_SEND_SENSOR_QUE);
+    dbgEvent(BEFORE_SEND_TIMER70_MSG);
     xHigherPriorityTaskWoken = sendToSensorThreadQueueFromISR(&message);
-//    sendToSensorThreadQueue(&message);
-    dbgEvent(AFTER_SEND_SENSOR_QUE);
+    dbgEvent(AFTER_SEND_TIMER70_MSG);
 
     portEND_SWITCHING_ISR(xHigherPriorityTaskWoken);
     dbgEvent(LEAVE_TIMER70);

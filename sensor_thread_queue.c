@@ -22,26 +22,18 @@ void createSensorThreadQueue() {
     }
 }
 
-void receiveFromSensorThreadQueue(SensorThreadMessage* receivedMsg) {
-    if (xQueueReceive(sensor_thread_queue, receivedMsg, portMAX_DELAY)) {
+SensorThreadMessage receiveFromSensorThreadQueue() {
+    static SensorThreadMessage receivedMsg;
+    if (xQueueReceive(sensor_thread_queue, &receivedMsg, portMAX_DELAY)) {
 
     }
     else {
         //Error, proceed to stop
         handleFatalError(SENSOR_QUEUE_NOT_RECEIVED);
     }
+    return receivedMsg;
 }
-#if 0
-void sendToSensorThreadQueue(SensorThreadMessage* targetMsg) {
-    if (xQueueSend(sensor_thread_queue, target, portMAX_DELAY)) {
 
-    }
-    else {
-        //Error, proceed to stop
-        handleFatalError(SENSOR_QUEUE_NOT_SENT);
-    }
-}
-#endif
 BaseType_t sendToSensorThreadQueueFromISR(SensorThreadMessage* targetMessage) {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
     if (xQueueSendFromISR(sensor_thread_queue, targetMessage, &xHigherPriorityTaskWoken)) {

@@ -25,7 +25,7 @@ typedef struct SensorThreadMessage {
 
 void createSensorThreadQueue();
 
-void receiveFromSensorThreadQueue(SensorThreadMessage* receivedMsg);
+SensorThreadMessage receiveFromSensorThreadQueue();
 
 BaseType_t sendToSensorThreadQueueFromISR(SensorThreadMessage* targetMessage);
 

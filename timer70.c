@@ -30,9 +30,26 @@
 #include "ti_drivers_config.h"
 #include <ti/drivers/dpl/HwiP.h>
 
-
 void timer70Callback(Timer_Handle myHandle, int_fast16_t status);
-int convert_to_mm(ADC_Handle adc);
+
+#if 0
+int distanceTable(uint32_t microVolt) {
+    int distance = -1;
+
+    if (microVolt > 900000) { // 10cm
+        distance = 100;
+    }
+    else if (microVolt > 600000) {
+        distance = 150;
+    }
+    else if (microVolt > 400000) {
+        distance = 200;
+    }
+    else if (microVolt >)
+
+}
+#endif
+
 /*
  * This function is used to convert the sensor reading to mm
  */
@@ -58,7 +75,7 @@ int convert_to_mm(ADC_Handle adc){
     // Using Sharp 10-80 cm sensor
     voltage_ratio = (float)adcValue0MicroVolt / 5000000;    // 5V input
 
-    distance = (4.8 / (voltage_ratio - 0.02 )) * 10;        // distance in mm
+    distance = (2.076 / (voltage_ratio - 0.011 )) * 10;
 
     // See if the distance is out of range
     if ( (distance < 100)||(distance > 800) ){

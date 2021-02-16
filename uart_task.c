@@ -8,44 +8,41 @@
 
 // The goal (from milestone description): Receive messages containing C-strings and output them to the UART.
 
+BaseType_t sendToUART(char* outputMsg)
+{
+    dbgEvent(BEFORE_SEND_UART);
+    BaseType_t HighPriorityEnable = pdFALSE;
+
+    uint8_t buffer[100];
+    UART_Handle uart;
+    UART_Params parameters;
+
+    UART_init();
+    UART_Params_init(&parameters);
+    // Specify the parameters if needed
+    params.baudRate = 9600;
+    params.readMode = UART_MODE_BLOCKING;
+    params.writeMode = UART_MODE_BLOCKING;
+    uart = UART_open(CONFIG_UART_0, &parameters);
+
+    if (uart == NULL) {
+        handleFatalError(UART_NOT_OPEN);
+
+    }
+
+    // get the message string, and send to UART
+    UART_write(uart, outputMsg, 20); // 20 since set the string size to 20 in header file
+    /*if(UART_write(uart, outputMsg, 20) == UART_STATUS_ERROR){
+        handleFatalError(UART)
+    }*/
+    dbgEvent(AFTER_SEND_UART);
+    return HighPriorityEnable;
+}
  void *uart_task(void *arg){
+     dbgEvent(ENTER_UART_TASK);
      while(1){
          receiveFromUARTthreadQueue(&message);
          sendToUART(&message);
      }
  }
 
-//__________________________________________________________________________________________
-// this function will be executed by each thread
-/*
- void *uart_task(void *arg){
-     dbgEvent(ENTER_UART_TASK);
-
-     UART_init();
-     UART_Params parameters;
-     UART_Params_init(&parameters);
-     parameters.baudRate = 9600;
-     parameters.readMode = UART_MODE_BLOCKING;
-     parameters.writeMode = UART_MODE_BLOCKING;
-     UART_Handle urt;
-
-     dbgEvent(BEFORE_LOOP_TASK);
-
-     while(1){
-
-         urt = UART_open(0, &parameters);
-         if (urt == NULL)
-         {
-             handleFatalError(UART_NOT_OPEN);
-         }
-         //UART_Thread_Queue retrieveMsg;
-         //read_from_queue(&retrieveMsg);
-
-         uint8_t buffer[100];
-         UART_write(urt, buffer, 100);
-         UART_close(urt);
-     }
-
-     dbgEvent(LEAVE_UART_TASK);
- }
-*/

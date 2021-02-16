@@ -5,44 +5,46 @@
 # include "uart_task.h"
 #include "uart_thread_queue.h"
 #include "debug.h"
+#include "ti_drivers_config.h"
+#include <string.h>
 
-// The goal (from milestone description): Receive messages containing C-strings and output them to the UART.
-
-BaseType_t sendToUART(char* outputMsg)
+void writeToUART(UartThreadMessage* outputMsg)
 {
-    dbgEvent(BEFORE_SEND_UART);
-    BaseType_t HighPriorityEnable = pdFALSE;
-
-    uint8_t buffer[100];
     UART_Handle uart;
     UART_Params parameters;
 
-    UART_init();
     UART_Params_init(&parameters);
-    // Specify the parameters if needed
-    params.baudRate = 9600;
-    params.readMode = UART_MODE_BLOCKING;
-    params.writeMode = UART_MODE_BLOCKING;
-    uart = UART_open(CONFIG_UART_0, &parameters);
+    parameters.baudRate = 115200;
+    parameters.writeMode = UART_MODE_BLOCKING;
+    parameters.writeTimeout = UART_WAIT_FOREVER;
+    uart = UART_open(CONFIG_UART_1, &parameters);
 
     if (uart == NULL) {
-        handleFatalError(UART_NOT_OPEN);
-
+        handleFatalError(UART_OPEN_ERROR);
     }
+    UART_write(uart, (const void *)outputMsg->message, strlen(outputMsg->message));
+#if 0
+    if (UART_write(uart, outputMsg->message, strlen(outputMsg->message)) == UART_STATUS_ERROR) {
+        handleFatalError(UART_WRITE_ERROR);
+    }
+#endif
 
-    // get the message string, and send to UART
-    UART_write(uart, outputMsg, 20); // 20 since set the string size to 20 in header file
-    /*if(UART_write(uart, outputMsg, 20) == UART_STATUS_ERROR){
-        handleFatalError(UART)
-    }*/
-    dbgEvent(AFTER_SEND_UART);
-    return HighPriorityEnable;
+    UART_close(uart);
+
 }
+
  void *uart_task(void *arg){
      dbgEvent(ENTER_UART_TASK);
+     UartThreadMessage message;
+     dbgEvent(BEFORE_UART_LOOP);
      while(1){
-         receiveFromUARTthreadQueue(&message);
-         sendToUART(&message);
+         dbgEvent(BEFORE_RECEIVE_UART_QUEUE);
+         message = receiveFromUARTthreadQueue();
+         dbgEvent(AFTER_RECEIVE_UART_QUEUE);
+
+         dbgEvent(ENTER_WRITE_TO_UART);
+         writeToUART(&message);
+         dbgEvent(LEAVE_WRITE_TO_UART);
      }
  }
 

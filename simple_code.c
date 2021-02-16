@@ -74,17 +74,12 @@ void setAllGPIOsToZero() {
 void *mainThread(void *arg0)
 {
     dbgEvent(ENTER_MAIN_THREAD);
-#if 0
+
     pthread_t           timer70_thread, timer500_thread, sensor_thread, uart_thread;
     pthread_attr_t      attrs;
     struct sched_param  priParam;
     int                 retc;
-#endif
-    pthread_t           timer70_thread, timer500_thread, sensor_thread, uart_thread;
-    pthread_attr_t      attrs;
-    struct sched_param  priParam;
-    int                 retc;
-    int                 detachState;
+
 
     /* Call driver init functions */
 
@@ -93,29 +88,6 @@ void *mainThread(void *arg0)
     Timer_init();
 
     setAllGPIOsToZero();
-
-#if 0
-    pthread_attr_init(&attrs);
-    detachState = PTHREAD_CREATE_DETACHED;
-    retc = pthread_attr_setdetachstate(&attrs, detachState);
-    if (retc != 0) {
-        /* pthread_attr_setdetachstate() failed */
-        while (1);
-    }
-    retc |= pthread_attr_setstacksize(&attrs, THREADSTACKSIZE);
-    if (retc != 0) {
-        /* pthread_attr_setstacksize() failed */
-        while (1);
-    }
-    priParam.sched_priority = 1;
-    pthread_attr_setschedparam(&attrs, &priParam);
-    retc = pthread_create(&timer500_thread, &attrs, timer500Thread, NULL);
-    if (retc != 0) {
-        /* pthread_create() failed */
-        while (1);
-    }
-#endif
-
 
     pthread_attr_init(&attrs);
     priParam.sched_priority = 1;
@@ -139,12 +111,12 @@ void *mainThread(void *arg0)
         /* pthread_create() failed */
         handleFatalError(PTHREAD_NOT_CREATED);
     }
-#if 0
+
     retc = pthread_create(&uart_thread, &attrs, uart_task, NULL);
     if (retc != 0) {
         /* pthread_create() failed */
         handleFatalError(PTHREAD_NOT_CREATED);
     }
-#endif
+
     return (NULL);
 }

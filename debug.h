@@ -16,11 +16,6 @@
 #define BIT_1   0x02
 #define BIT_0   0x01
 
-/* pthread related errors */
-#define PTHREAD_SET_ATTR_FAILED_MAIN_C      0x7a
-#define PTHREAD_CREATE_FAILED_MAIN_C        0x7b
-#define PTHREAD_NOT_CREATED                 0x7c
-
 /* Main Thread */
 #define ENTER_MAIN_THREAD                   0x01
 
@@ -35,6 +30,12 @@
 /* Sensor Task */
 #define ENTER_SENSOR_TASK                   0x20
 #define BEFORE_SENSOR_LOOP                  0x21
+
+/* UART Task */
+#define ENTER_UART_TASK                     0x25
+#define BEFORE_UART_LOOP                    0x26
+#define ENTER_WRITE_TO_UART                 0x28
+#define LEAVE_WRITE_TO_UART                 0x29
 
 /* Sensor FSM */
 #define ENTER_STATE_MACHINE                 0x2a
@@ -75,10 +76,19 @@
 #define UART_QUEUE_NOT_RECEIVED             0x67
 #define UART_QUEUE_NOT_SENT                 0x68
 
+/* UART Write Error */
+#define UART_OPEN_ERROR                     0x70
+#define UART_WRITE_ERROR                    0x71
+
 /* Timer Errors*/
 #define TIMER500_NOT_CREATED                0x75
 #define TIMER70_NOT_CREATED                 0x77
 #define ADC_NOT_OPEN                        0x79
+
+/* pthread related errors */
+#define PTHREAD_SET_ATTR_FAILED_MAIN_C      0x7a
+#define PTHREAD_CREATE_FAILED_MAIN_C        0x7b
+#define PTHREAD_NOT_CREATED                 0x7c
 
 
 void dbgEvent(unsigned int event);

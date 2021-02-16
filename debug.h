@@ -17,9 +17,9 @@
 #define BIT_0   0x01
 
 /* pthread related errors */
-#define PTHREAD_SET_ATTR_FAILED_MAIN_C      0x70
-#define PTHREAD_CREATE_FAILED_MAIN_C        0x71
-#define PTHREAD_NOT_CREATED                 0x72
+#define PTHREAD_SET_ATTR_FAILED_MAIN_C      0x7a
+#define PTHREAD_CREATE_FAILED_MAIN_C        0x7b
+#define PTHREAD_NOT_CREATED                 0x7c
 
 /* Main Thread */
 #define ENTER_MAIN_THREAD                   0x01
@@ -55,15 +55,30 @@
 #define BEFORE_SEND_TIMER500_MSG            0x3e
 #define AFTER_SEND_TIMER500_MSG             0x3f
 
+/* UART Queue */
+#define BEFORE_RECEIVE_UART_QUEUE           0x41
+#define AFTER_RECEIVE_UART_QUEUE            0x49
+
+#define BEFORE_SEND_TYPE70_MSG              0x4a
+#define AFTER_SEND_TYPE70_MSG               0x4b
+
+#define BEFORE_SEND_TYPE500_MSG             0x4e
+#define AFTER_SEND_TYPE500_MSG              0x4f
 
 /* Sensor Queue Errors */
 #define SENSOR_QUEUE_NOT_CREATED            0x60
 #define SENSOR_QUEUE_NOT_RECEIVED           0x61
 #define SENSOR_QUEUE_NOT_SENT               0x62
 
-/* Timer70 Errors*/
-#define TIMER70_NOT_CREATED                 0x50
-#define ADC_NOT_OPEN                        0x51
+/* UART Queue Errors */
+#define UART_QUEUE_NOT_CREATED              0x66
+#define UART_QUEUE_NOT_RECEIVED             0x67
+#define UART_QUEUE_NOT_SENT                 0x68
+
+/* Timer Errors*/
+#define TIMER500_NOT_CREATED                0x75
+#define TIMER70_NOT_CREATED                 0x77
+#define ADC_NOT_OPEN                        0x79
 
 
 void dbgEvent(unsigned int event);

@@ -14,8 +14,7 @@
 #include <stddef.h>
 #include <string.h>
 #include <stdio.h>
-
-#define BUFFER_SIZE 50
+#include <ti/drivers/dpl/HwiP.h>
 
 typedef enum {
     INIT_AVERAGE,
@@ -42,10 +41,14 @@ void enterStateMachine(SensorThreadMessage *receivedMessage) {
                 if (receivedMessage->value != NULL) {
                     sensorCount += 1;
                     sensorTotal += receivedMessage->value;
-                    char messageBuffer[BUFFER_SIZE];
+                    static char messageBuffer[BUFFER_SIZE];
                     snprintf(messageBuffer, BUFFER_SIZE, "Sensor = %d %d\n", receivedMessage->value, sensorCount);
                     // Send to UART queue
-
+                    UartThreadMessage sendMessage;
+                    strcpy(sendMessage.message, messageBuffer);
+                    dbgEvent(BEFORE_SEND_TYPE70_MSG);
+                    sendToUartThreadQueue(&sendMessage);
+                    dbgEvent(AFTER_SEND_TYPE70_MSG);
                 }
             }
             if (receivedMessage->message_type == TIMER500_MESSAGE) {
@@ -55,11 +58,18 @@ void enterStateMachine(SensorThreadMessage *receivedMessage) {
                     averageSensorValue = sensorTotal / sensorCount;
                 }
 
-                char messageBuffer[BUFFER_SIZE];
+                static char messageBuffer[BUFFER_SIZE];
                 snprintf(messageBuffer, BUFFER_SIZE, "Sensor Avg = %d; Time = %d\n", averageSensorValue, receivedMessage->value);
                 // Send to UART queue
+                UartThreadMessage sendMessage;
+                strcpy(sendMessage.message, messageBuffer);
+                dbgEvent(BEFORE_SEND_TYPE500_MSG);
+                sendToUartThreadQueue(&sendMessage);
+                dbgEvent(AFTER_SEND_TYPE500_MSG);
+
                 dbgEvent(LEAVE_UPDATE_AVERAGE_STATE);
                 currentState = INIT_AVERAGE;
+
             }
 
             break;

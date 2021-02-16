@@ -5,15 +5,19 @@
 #ifndef UART_THREAD_QUEUE_H_
 #define UART_THREAD_QUEUE_H_
 
-#include <FreeRTOS.h>
-#include <ti/drivers/UART.h>
+#define BUFFER_SIZE 50
 
-char message[20]; // Received C string
+#include <FreeRTOS.h>
+#include <queue.h>
+
+typedef struct UartThreadMessage {
+    char message[BUFFER_SIZE];
+} UartThreadMessage;
 
 void createUARTthreadQueue();
 
-void receiveFromUARTthreadQueue(char* retrievedMsg);
+UartThreadMessage receiveFromUARTthreadQueue();
 
-BaseType_t sendToUART(char* outputMsg);
+void sendToUartThreadQueue(UartThreadMessage* targetMessage);
 
 #endif /* UART_THREAD_QUEUE_H_ */

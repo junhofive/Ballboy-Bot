@@ -11,8 +11,6 @@
 #include <FreeRTOS.h>
 #include <queue.h>
 
-#define MESSAGE_LENGTH 20
-
 typedef enum {
     TIMER70_MESSAGE,
     TIMER500_MESSAGE

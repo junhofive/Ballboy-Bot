@@ -25,6 +25,6 @@ void createSensorThreadQueue();
 
 SensorThreadMessage receiveFromSensorThreadQueue();
 
-BaseType_t sendToSensorThreadQueueFromISR(SensorThreadMessage* targetMessage);
+void sendToSensorThreadQueueFromISR(SensorThreadMessage* targetMessage);
 
 #endif /* SENSOR_THREAD_QUEUE_H_ */

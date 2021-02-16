@@ -76,8 +76,10 @@ int main(void)
 
     Board_init();
     GPIO_init();
+
     createSensorThreadQueue();
     createUARTthreadQueue();
+
     GPIO_setConfig(CONFIG_GPIO_LED_0, GPIO_CFG_OUT_STD | GPIO_CFG_OUT_LOW);
     /* Initialize the attributes structure with default values */
     pthread_attr_init(&attrs);

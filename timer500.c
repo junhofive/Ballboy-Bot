@@ -55,7 +55,6 @@ void *timer500Thread(void *arg0){
 void timer500Callback(Timer_Handle myHandle, int_fast16_t status){
     dbgEvent(ENTER_TIMER500);
     SensorThreadMessage message;
-    BaseType_t xHigherPriorityTaskWoken;
 
     bool inISR = HwiP_inISR(); // in order to determine in ISR or not
 
@@ -77,9 +76,8 @@ void timer500Callback(Timer_Handle myHandle, int_fast16_t status){
 
     // send to message queue
     dbgEvent(BEFORE_SEND_TIMER500_MSG);
-    xHigherPriorityTaskWoken = sendToSensorThreadQueueFromISR(&message);
+    sendToSensorThreadQueueFromISR(&message);
     dbgEvent(AFTER_SEND_TIMER500_MSG);
 
-    portEND_SWITCHING_ISR(xHigherPriorityTaskWoken);
     dbgEvent(LEAVE_TIMER500);
 }

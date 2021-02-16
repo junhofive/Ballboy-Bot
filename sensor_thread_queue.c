@@ -29,11 +29,9 @@ SensorThreadMessage receiveFromSensorThreadQueue() {
     return receivedMsg;
 }
 
-BaseType_t sendToSensorThreadQueueFromISR(SensorThreadMessage* targetMessage) {
-    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-    if (xQueueSendFromISR(sensor_thread_queue, targetMessage, &xHigherPriorityTaskWoken) != pdTRUE) {
+void sendToSensorThreadQueueFromISR(SensorThreadMessage* targetMessage) {
+    if (xQueueSendFromISR(sensor_thread_queue, targetMessage, NULL) != pdTRUE) {
         handleFatalError(SENSOR_QUEUE_NOT_SENT);
     }
-    return xHigherPriorityTaskWoken;
 }
 
